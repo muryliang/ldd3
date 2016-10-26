@@ -28,18 +28,23 @@ static void blk_transfer(unsigned long sector, unsigned long nsectors, char *buf
 void request_fn(struct request_queue *rq)
 {
 	struct request *rst;
+	int err;
 //	printk(KERN_ERR "in request_fn, about to begin while\n");
-	while ((rst = blk_fetch_request(rq))!=NULL)
+	rst = blk_fetch_request(rq);
+	while (rst != NULL)
 	{
 //		printk(KERN_ERR "in request_fn, in while\n");
 		if (!blk_fs_request(rst))
 		{
 			printk(KERN_ERR "skip non fs request\n");
-			 __blk_end_request_all(rst,-EIO);
-			continue;
+			err = -EIO;
+			goto done;
 		}
 		blk_transfer(blk_rq_pos(rst), blk_rq_cur_sectors(rst), rst->buffer, rq_data_dir(rst));
-		__blk_end_request_all(rst, 0);
+		err = 0;
+done:
+		if (!__blk_end_request_cur(rst, err))
+			rst = blk_fetch_request(rq);
 	}
 }
 
