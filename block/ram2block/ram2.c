@@ -109,7 +109,7 @@ static int __init start(void)
 	printk(KERN_ERR "make request set done\n");
 	pdisk.gd->fops = &blk_fops;
 	pdisk.gd->private_data = &pdisk;
-	set_capacity(pdisk.gd, DISK_SECTOR);
+	set_capacity(pdisk.gd, DISK_SECTOR);//need to keep coherent with the whole size!!
 	printk(KERN_ERR "set capacity done\n");
 	snprintf(pdisk.gd->disk_name, 32, "bdisk%c",'a');
 	add_disk(pdisk.gd);

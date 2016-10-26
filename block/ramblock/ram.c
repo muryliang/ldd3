@@ -94,7 +94,7 @@ static int __init start(void)
 	gd->first_minor = 0;
 	snprintf(gd->disk_name, 32, "blk%c",'a');
 	blk_queue_logical_block_size(gd->queue, 512);
-	set_capacity(gd, 32768);
+	set_capacity(gd, 32768); // need to keep coherent with the whole size !!
 	add_disk(gd);
 	printk(KERN_ERR "blk dev init done\n");
 	return 0;
