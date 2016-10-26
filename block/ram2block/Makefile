@@ -1,5 +1,5 @@
 ifneq ($(KERNELRELEASE),)
-	obj-m := ram.o
+	obj-m := ram2.o
 else
 	KERNDIR := /lib/modules/$(shell uname -r)/build
 	PWD := $(shell pwd)
