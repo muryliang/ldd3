@@ -13,8 +13,8 @@ MODULE_LICENSE("GPL");
 /*these all can be made as params*/
 static int major = 0;
 static char *devname = "mycdev";
-static u64 scull_qset = 1000;
-static u64 scull_quantum = 4000;
+static u64 scull_qset = 10;
+static u64 scull_quantum = 10;
 
 struct scull_dev {
 	dev_t dnum;
@@ -34,12 +34,15 @@ struct qset * scull_follow(struct scull_dev *dev, int idx)
 	int i;
 	struct qset **qtr = (struct qset**)&dev->data;
 	struct qset *cur = NULL;
-	for (i = 0; i < idx; i++) {
+	pr_info("want idx %d\n", idx);
+	for (i = 0; i <= idx; i++) {
+		pr_info("for index %d\n", i);
 		if (*qtr == NULL)  {
 			*qtr = vmalloc(sizeof(struct qset));
 			if (*qtr == NULL) 
 			 	return ERR_PTR(-EFAULT);
 			memset(*qtr, 0, sizeof(struct qset));
+			pr_info("for idex %d alloc success\n", i);
 		}
 		cur = *qtr;
 		qtr = &cur->next;
@@ -88,6 +91,7 @@ static int scull_release(struct inode *inode, struct file *file)
 static loff_t scull_llseek(struct file *file, loff_t off, int whence)
 {
 	loff_t newpos;
+	pr_info("fpos %d, off %d, whence %d\n", file->f_pos, (int)off, whence);
 	switch(whence) {
 	case 0: /*SEEK_SET*/
 		newpos = off;
@@ -101,10 +105,11 @@ static loff_t scull_llseek(struct file *file, loff_t off, int whence)
 	default:
 		return -EINVAL;
 	}
-	if (newpos < 0 || newpos > scull_quantum * scull_qset) {
+	if (newpos < 0) {
 		printk("error seek pos %lu\n", (unsigned long)newpos);
 		return -EINVAL;
 	}
+	pr_info("new pos %d\n", newpos);
 	down(&scull.sema);
 	file->f_pos = newpos;
 	up(&scull.sema);
@@ -135,25 +140,36 @@ static ssize_t scull_read(struct file *file, char __user *buffer, size_t len, lo
 
 	down(&scull.sema);
 	printk("in read\n");
+	/*
 	if (*off + len > scull.size) {
 		printk("error over end read\n");
 		return -EINVAL;
 	}
+	*/
 
 	index = *off / scull.size;
 	res = *off % scull.size;
 	pos = res / scull_quantum;
 	offset = res % scull_quantum;
-	if (IS_ERR(curset = scull_follow(dev, index)))
+	printk("about to read len %llu, offset %llu,"
+		"index %d res %d pos %d offset %d\n", (u64)len, (u64)*off,
+		index, res, pos, offset);
+	if (IS_ERR(curset = scull_follow(dev, index))) {
+		up(&scull.sema);
 		return -EFAULT;
+	}
+	pr_info("in read, get qtr %lx\n", (unsigned long)curset);
 	if (!curset->data || pos >= scull_qset || !curset->data[pos]) {
 		printk("at index: %d, pos %d, offset %d, nothing to read\n", index, pos, offset);
+		up(&scull.sema);
 		return -EFAULT;
 	}
 	count = min((u64)len, (u64)scull_quantum - (u64)offset);
 	printk("about to read %d bytes\n", count);
-	if (copy_to_user(buffer, curset->data[pos], count))
+	if (copy_to_user(buffer, curset->data[pos] + offset, count)) {
+		up(&scull.sema);
 		return -EAGAIN;
+	}
 	*off += count;
 	up(&scull.sema);
 	return count;
@@ -176,10 +192,13 @@ static ssize_t scull_write(struct file *file,const char __user *buffer, size_t l
 	if (IS_ERR((qtr = scull_follow(dev, index))))	
 	{
 		printk("error when follow in write\n");
+		up(&scull.sema);
 		return -EFAULT;
 	}
+	pr_info("in write, get qtr %lx\n", (unsigned long)qtr);
 	if (pos >= scull_qset) {
 		printk("error over qset bondanry\n");
+		up(&scull.sema);
 		return -EINVAL;
 	}
 
@@ -187,6 +206,7 @@ static ssize_t scull_write(struct file *file,const char __user *buffer, size_t l
 		qtr->data = vmalloc(scull_qset * sizeof(void*));
 		if (!qtr->data) {
 			printk("error when alloc for qset->data\n");
+			up(&scull.sema);
 			return -EFAULT;
 		}
 		memset(qtr->data, 0, sizeof(scull_qset * sizeof(void*)));
@@ -194,9 +214,11 @@ static ssize_t scull_write(struct file *file,const char __user *buffer, size_t l
 	}
 
 	if (!qtr->data[pos]) {
+		printk("in allocing qtr->data[pos] %d\n", pos);
 		qtr->data[pos] = vmalloc(scull_quantum);
 		if (!qtr->data[pos]) {
 			printk("error when alloc for quantum\n");
+			up(&scull.sema);
 			return -EFAULT;
 		}
 		memset(qtr->data[pos], 0, sizeof(scull_quantum));
@@ -206,6 +228,7 @@ static ssize_t scull_write(struct file *file,const char __user *buffer, size_t l
 	printk("about to write %d bytes\n", count);
 	if (copy_from_user(qtr->data[pos] + offset, buffer, count)){
 		printk("copy from user error\n");
+		up(&scull.sema);
 		return -EAGAIN;
 	}
 	*off += count;
