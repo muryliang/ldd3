@@ -24,6 +24,7 @@ struct scull_dev {
 
 static int scull_open(struct inode *inode, struct file *file)
 {
+	file->private_data = &scull;
 	printk("success open\n");
 	return 0;
 }
@@ -32,6 +33,30 @@ static int scull_release(struct inode *inode, struct file *file)
 {
 	printk("success closed\n");
 	return 0;
+}
+
+static loff_t scull_llseek(struct file *file, loff_t off, int whence)
+{
+	loff_t newpos;
+	switch(whence) {
+	case 0: /*SEEK_SET*/
+		newpos = off;
+		break;
+	case 1: /*SEEK_CUR*/
+		newpos = file->f_pos + off;
+		break;
+	case 2: /*SEEK_END*/
+		newpos = scull_quantum * scull_qset + off;
+		break;
+	default:
+		return -EINVAL;
+	}
+	if (newpos < 0 || newpos > scull_quantum * scull_qset) {
+		printk("error seek pos %lu\n", (unsigned long)newpos);
+		return -EINVAL;
+	}
+	file->f_pos = newpos;
+	return newpos;
 }
 
 static ssize_t scull_read(struct file *file, char __user *buffer, size_t len, loff_t *off)
@@ -70,6 +95,7 @@ static struct file_operations scull_fops = {
 	.release = scull_release,
 	.read = scull_read,
 	.write = scull_write,
+	.llseek = scull_llseek,
 };
 
 static int __init start(void)
@@ -112,9 +138,3 @@ static void __exit end(void)
 
 module_init(start);
 module_exit(end);
-	
-
-
-
-	
-		
