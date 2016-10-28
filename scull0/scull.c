@@ -28,21 +28,24 @@ struct qset {
 	struct qset *next;
 	void **data;
 };
-
+/*used in read and write, so have got lock before call this*/
 struct qset * scull_follow(struct scull_dev *dev, int idx)
 {
 	int i;
 	struct qset **qtr = (struct qset**)&dev->data;
 	struct qset *cur = NULL;
-	pr_info("want idx %d\n", idx);
 	for (i = 0; i <= idx; i++) {
-		pr_info("for index %d\n", i);
+		pr_info("traverse index %d\n", i);
 		if (*qtr == NULL)  {
 			*qtr = vmalloc(sizeof(struct qset));
-			if (*qtr == NULL) 
+			if (IS_ERR(*qtr)) {
+				printk("error when vmalloc for idx %d,in follow\n", idx);
 			 	return ERR_PTR(-EFAULT);
+			}
 			memset(*qtr, 0, sizeof(struct qset));
-			pr_info("for idex %d alloc success\n", i);
+//			(*qtr)->next = NULL;
+//			(*qtr)->data = NULL;
+			pr_info("idex %d alloc success\n", i);
 		}
 		cur = *qtr;
 		qtr = &cur->next;
@@ -56,18 +59,29 @@ static void scull_trim(struct scull_dev *dev)
 	struct qset *qtr, *next;
 	int i;
 
+	down(&scull.sema);
+	pr_info("in trim\n");
 	for(qtr = (struct qset*)dev->data; qtr; qtr = next) {
+		pr_info("for qtr %lx\n", (unsigned long)qtr);
 		if (qtr->data) {
 			for(i = 0; i < scull_qset; i++) {
-				if (qtr->data[i])
+				if (qtr->data[i]) {
+					pr_info("pos %d has addr %lx,free it\n", i, (unsigned long)qtr->data[i]);
 					vfree(qtr->data[i]);
+				}
+				qtr->data[i] = NULL;
 			}
+			pr_info("free %lx\n", (unsigned long)qtr);
 			vfree(qtr->data);
+			qtr->data = NULL; //this is important, otherwise will get invalid old address!!
 		}
 		next = qtr->next;
+		pr_info("get next %lx, about to free qtr\n", (unsigned long)next);
 		vfree(qtr);
 	}
 	dev->data = NULL;
+	up(&scull.sema);
+	printk("trim success\n");
 }
 			
 
@@ -76,7 +90,6 @@ static int scull_open(struct inode *inode, struct file *file)
 	file->private_data = &scull;
 	if ((file->f_flags & O_ACCMODE) == O_WRONLY) {
 		scull_trim(&scull);
-		printk("success trimed\n");
 	}
 	printk("success open\n");
 	return 0;
@@ -91,7 +104,7 @@ static int scull_release(struct inode *inode, struct file *file)
 static loff_t scull_llseek(struct file *file, loff_t off, int whence)
 {
 	loff_t newpos;
-	pr_info("fpos %d, off %d, whence %d\n", file->f_pos, (int)off, whence);
+	pr_info("in seek:fpos %d, off %d, whence %d\n", (int)file->f_pos, (int)off, (int)whence);
 	switch(whence) {
 	case 0: /*SEEK_SET*/
 		newpos = off;
@@ -109,7 +122,7 @@ static loff_t scull_llseek(struct file *file, loff_t off, int whence)
 		printk("error seek pos %lu\n", (unsigned long)newpos);
 		return -EINVAL;
 	}
-	pr_info("new pos %d\n", newpos);
+	pr_info("new pos %d\n", (int)newpos);
 	down(&scull.sema);
 	file->f_pos = newpos;
 	up(&scull.sema);
@@ -139,7 +152,6 @@ static ssize_t scull_read(struct file *file, char __user *buffer, size_t len, lo
 	int index, res, pos, offset, count = 0;
 
 	down(&scull.sema);
-	printk("in read\n");
 	/*
 	if (*off + len > scull.size) {
 		printk("error over end read\n");
@@ -160,12 +172,13 @@ static ssize_t scull_read(struct file *file, char __user *buffer, size_t len, lo
 	}
 	pr_info("in read, get qtr %lx\n", (unsigned long)curset);
 	if (!curset->data || pos >= scull_qset || !curset->data[pos]) {
-		printk("at index: %d, pos %d, offset %d, nothing to read\n", index, pos, offset);
+		printk("nothing to read:at index: %d, pos %d, offset %d\n", index, pos, offset);
 		up(&scull.sema);
 		return -EFAULT;
 	}
+	pr_info("in read, get qtr->data[pos], pos:%d, ptr->data[pos]: %lx\n", pos, (unsigned long)curset->data[pos]);
 	count = min((u64)len, (u64)scull_quantum - (u64)offset);
-	printk("about to read %d bytes\n", count);
+	printk("about to read %d bytes,done with pos %d\n", count, pos);
 	if (copy_to_user(buffer, curset->data[pos] + offset, count)) {
 		up(&scull.sema);
 		return -EAGAIN;
@@ -204,28 +217,30 @@ static ssize_t scull_write(struct file *file,const char __user *buffer, size_t l
 
 	if (!qtr->data) {
 		qtr->data = vmalloc(scull_qset * sizeof(void*));
-		if (!qtr->data) {
+		if (IS_ERR(qtr->data)) {
 			printk("error when alloc for qset->data\n");
 			up(&scull.sema);
 			return -EFAULT;
 		}
-		memset(qtr->data, 0, sizeof(scull_qset * sizeof(void*)));
+		memset(qtr->data, 0, scull_qset * sizeof(void*));
 		printk("success alloc qsets \n");
 	}
+	pr_info("in write, get qtr->data %lx\n", (unsigned long)qtr->data);
 
 	if (!qtr->data[pos]) {
-		printk("in allocing qtr->data[pos] %d\n", pos);
 		qtr->data[pos] = vmalloc(scull_quantum);
-		if (!qtr->data[pos]) {
+		if (IS_ERR(qtr->data[pos])) {
 			printk("error when alloc for quantum\n");
 			up(&scull.sema);
 			return -EFAULT;
 		}
-		memset(qtr->data[pos], 0, sizeof(scull_quantum));
+		memset(qtr->data[pos], 0, scull_quantum);
 		printk("success alloc quantum for pos %d\n", pos);
 	}
+	pr_info("in write, get qtr->data[pos], pos:%d, ptr->data[pos]: %lx\n", pos, (unsigned long)qtr->data[pos]);
+	pr_info("in write, and  qtr->data[pos+1], pos:%d, ptr->data[pos+1]: %lx\n", pos+1, (unsigned long)qtr->data[pos+1]);
 	count = min((u64)len, (u64)scull_quantum - (u64)offset);
-	printk("about to write %d bytes\n", count);
+	printk("about to write %d bytes,done with pos %d\n", count, pos);
 	if (copy_from_user(qtr->data[pos] + offset, buffer, count)){
 		printk("copy from user error\n");
 		up(&scull.sema);
@@ -263,13 +278,7 @@ static struct file_operations scull_fops = {
 
 static int __init start(void)
 {
-	memset(&scull, 0, sizeof(scull));
-//	scull.data = vmalloc(scull_qset * scull_quantum);
-/*	if (scull.data == NULL ) {
-		printk("alloc mem for data error\n");
-		return -EFAULT;
-	}
-*/
+	memset(&scull, 0, sizeof(struct scull_dev));
 	if (major == 0) {
 		if (alloc_chrdev_region(&scull.dnum, 0, 1, devname)) {
 			printk("error when allocate dev number\n");
@@ -299,7 +308,6 @@ static void __exit end(void)
 	cdev_del(&scull.scdev);
 	unregister_chrdev_region(scull.dnum, 1);
 	scull_trim(&scull);
-//	vfree(scull.data);
 	return;
 }
 
