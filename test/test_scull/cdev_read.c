@@ -25,11 +25,7 @@ static void process(char *buf)
 int main(void)
 {
 	int fd, count, len;
-	char buf8[] = "my name is bianmingliang\n";
 	char buf1[] = "aabbccddeeffgghhiijjkkll\n";
-	char buf3[] = "wahahahhaahhahahahahahahhahaha\n";
-	char buf4[] = "hihihihihihihihihihihihih\n";
-	char buf9[] = "now second\n";
 	char buf2[] = "ooppqqrrss\n";
 	char tmpbuf[NUM];
 	char *ptr;

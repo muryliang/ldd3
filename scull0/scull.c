@@ -10,6 +10,8 @@ MODULE_DESCRIPTION("a test cdev");
 MODULE_VERSION("v1.0");
 MODULE_LICENSE("GPL");
 
+#define GETINFO _IOR(0x20, 0, u64)
+
 /*these all can be made as params*/
 static int major = 0;
 static char *devname = "mycdev";
@@ -59,7 +61,8 @@ static void scull_trim(struct scull_dev *dev)
 	struct qset *qtr, *next;
 	int i;
 
-	down(&scull.sema);
+	if (down_interruptible(&scull.sema) < 0)
+		return;
 	pr_info("in trim\n");
 	for(qtr = (struct qset*)dev->data; qtr; qtr = next) {
 		pr_info("for qtr %lx\n", (unsigned long)qtr);
@@ -123,7 +126,8 @@ static loff_t scull_llseek(struct file *file, loff_t off, int whence)
 		return -EINVAL;
 	}
 	pr_info("new pos %d\n", (int)newpos);
-	down(&scull.sema);
+	if (down_interruptible(&scull.sema) < 0)
+		return -EINVAL;
 	file->f_pos = newpos;
 	up(&scull.sema);
 	return newpos;
@@ -131,7 +135,7 @@ static loff_t scull_llseek(struct file *file, loff_t off, int whence)
 /*
 static ssize_t scull_read(struct file *file, char __user *buffer, size_t len, loff_t *off)
 {
-	down(&scull.sema);
+	down_interruptible(&scull.sema);
 	printk("in read ,len: %d, offset: %d\n", (int)len, (int)*off);
 	if (*off + len > scull_qset * scull_quantum) {
 		printk("error over end read\n");
@@ -151,7 +155,8 @@ static ssize_t scull_read(struct file *file, char __user *buffer, size_t len, lo
 	struct qset *curset;
 	int index, res, pos, offset, count = 0;
 
-	down(&scull.sema);
+	if (down_interruptible(&scull.sema) < 0)
+		return -EINVAL;
 	/*
 	if (*off + len > scull.size) {
 		printk("error over end read\n");
@@ -194,7 +199,8 @@ static ssize_t scull_write(struct file *file,const char __user *buffer, size_t l
 	struct qset *qtr;
 	struct scull_dev *dev = file->private_data;
 	
-	down(&scull.sema);
+	if (down_interruptible(&scull.sema) < 0)
+		return -EINVAL;
 	index = *off / scull.size;
 	res = *off % scull.size;
 	pos = res / scull_quantum;
@@ -253,7 +259,7 @@ static ssize_t scull_write(struct file *file,const char __user *buffer, size_t l
 /*
 static ssize_t scull_write(struct file *file, const char __user *buffer, size_t len, loff_t *off)
 {
-	down(&scull.sema);
+	down_interruptible(&scull.sema);
 	printk("in write ,len: %d, offset: %d\n",(int) len,(int) *off);
 	if (*off + len > scull_qset * scull_quantum) {
 		printk("error over end write\n");
@@ -266,6 +272,22 @@ static ssize_t scull_write(struct file *file, const char __user *buffer, size_t 
 	return len;
 }
 */
+static int scull_ioctl(struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg)
+{
+	switch(cmd) {
+		case GETINFO:
+			if (copy_to_user((void*)arg, &scull_qset, sizeof(u64)) < 0) {
+				printk("error when ioctl copy\n");
+				return -EFAULT;
+			}
+			break;
+		default:
+			printk("why here\n");
+			return -EFAULT;
+	}
+	return 0;
+}
+			
 
 static struct file_operations scull_fops = {
 	.owner = THIS_MODULE,
@@ -274,6 +296,7 @@ static struct file_operations scull_fops = {
 	.read = scull_read,
 	.write = scull_write,
 	.llseek = scull_llseek,
+	.ioctl = scull_ioctl,
 };
 
 static int __init start(void)
@@ -294,7 +317,8 @@ static int __init start(void)
 	}
 	printk("registered dev num %x\n", scull.dnum);
 	scull.size = scull_quantum * scull_qset;
-	sema_init(&scull.sema, 1);
+//	sema_init(&scull.sema, 1);
+	init_MUTEX(&scull.sema);
 	cdev_init(&scull.scdev, &scull_fops);
 
 	if (cdev_add(&scull.scdev, scull.dnum, 1) < 0)
