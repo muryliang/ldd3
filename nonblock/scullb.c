@@ -6,6 +6,7 @@
 #include <linux/sched.h>
 #include <linux/vmalloc.h>
 #include <linux/uaccess.h>
+#include <linux/poll.h>
 
 MODULE_LICENSE("GPL");
 
@@ -37,9 +38,12 @@ static int sdev_open(struct inode *inode, struct file *file)
 	return 0;
 }
 
+static int sdev_fasync(int fd, struct file *file, int mode);
+
 static int sdev_close(struct inode *inode , struct file *file)
 {
 	file->private_data = NULL;
+	sdev_fasync(-1, file, 0);
 	printk("success close\n");
 	return 0;
 }
@@ -134,17 +138,44 @@ static ssize_t sdev_write(struct file *file, const char __user *buf, size_t len,
 		kill_fasync(&sdev.async_queue, SIGIO, POLL_IN);
 	return count;
 }
-	
+
+static unsigned int sdev_poll(struct file *file, struct poll_table_struct * table) 
+{
+	int mask = 0;
+	if (down_interruptible(&sdev.sem) )
+		return -ERESTARTSYS;
+	poll_wait(file, &sdev.inq, table);
+	poll_wait(file, &sdev.outq, table);
+	if (sdev.rp != sdev.wp) {
+		mask |= POLLIN | POLLRDNORM;
+		pr_info("poll happened read\n");
+	}
+	if (have_space(&sdev)) {
+		mask |= POLLOUT | POLLWRNORM;
+		pr_info("poll happened write\n");
+	}
+	up(&sdev.sem);
+	return mask;
+}
+
+static int sdev_fasync(int fd, struct file *file, int mode)
+{
+	return fasync_helper(fd, file, mode, &sdev.async_queue);
+}
+
 static struct file_operations sdev_fops = {
 	.owner = THIS_MODULE,
 	.read = sdev_read,
 	.write = sdev_write,
 	.open = sdev_open,
 	.release = sdev_close,
+	.poll = sdev_poll,
+	.fasync = sdev_fasync,
 };
 
 static int __init start(void)
 {
+	memset(&sdev, 0, sizeof(struct scullb));
 	init_waitqueue_head(&sdev.inq);
 	init_waitqueue_head(&sdev.outq);
 	if (alloc_chrdev_region(&sdev.dnum, 0, 1, DEVNAME) < 0)
