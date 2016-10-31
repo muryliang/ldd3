@@ -1,5 +1,5 @@
 ifneq ($(KERNELRELEASE),)
-	obj-m := timer.o
+	obj-m := workqueue.o
 else
 	KERNDIR := /lib/modules/$(shell uname -r)/build
 	PWD := $(shell pwd)

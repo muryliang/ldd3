@@ -7,12 +7,14 @@
 #include <linux/wait.h>
 #include <linux/timer.h>
 #include <linux/hardirq.h>
+#include <linux/interrupt.h>
 
 #define LOOPS 10
 struct sdevdata {
 	unsigned long prejif;
 	char *buf;
 	struct timer_list timer;
+	struct tasklet_struct t;
 	int loops;
 	wait_queue_head_t wait;
 };
@@ -27,9 +29,8 @@ static void sdev_timer(unsigned long arg)
 			j, j - ptr->prejif, in_interrupt() ? 1 : 0,
 			current->pid, smp_processor_id(), current->comm);
 	if (--ptr->loops) {
-		ptr->timer.expires += 10;
 		ptr->prejif = j;
-		add_timer(&ptr->timer);
+		tasklet_hi_schedule(&ptr->t);
 	} else
 		wake_up_interruptible(&ptr->wait);
 }
@@ -44,19 +45,17 @@ static int sdev_proc(char *buf, char **start, off_t off, int count, int *eof, vo
 	if (!data)
 		return -ENOMEM;
 	memset(data, 0, sizeof(struct sdevdata));
-	init_timer(&data->timer);
 	init_waitqueue_head(&data->wait);
 
+	tasklet_init(&data->t, sdev_timer, (unsigned long)data);
 	data->prejif = j;
 	data->buf = buf2;
 	data->loops = LOOPS;
-	data->timer.data = (unsigned long)data;
-	data->timer.function = sdev_timer;
-	data->timer.expires = j + 10;
-	add_timer(&data->timer);
+	tasklet_hi_schedule(&data->t);
 	wait_event_interruptible(data->wait, !data->loops);
 	if (signal_pending(current))
 		return -ERESTARTSYS;
+
 //	*start = buf; //this is important to let proc output contingously
 	buf2 = data->buf;
 	kfree(data);

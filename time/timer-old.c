@@ -14,12 +14,12 @@ struct sdevdata {
 	char *buf;
 	struct timer_list timer;
 	int loops;
-	wait_queue_head_t wait;
 };
 
-//static struct sdevdata data;
+static struct sdevdata data;
+static DECLARE_WAIT_QUEUE_HEAD(sdev_wait);
 
-static void sdev_timer(unsigned long arg)
+void sdev_timer(unsigned long arg)
 {
 	struct sdevdata *ptr = (struct sdevdata*)arg;
 	unsigned long j = jiffies;
@@ -27,45 +27,41 @@ static void sdev_timer(unsigned long arg)
 			j, j - ptr->prejif, in_interrupt() ? 1 : 0,
 			current->pid, smp_processor_id(), current->comm);
 	if (--ptr->loops) {
-		ptr->timer.expires += 10;
+		ptr->timer.expires += HZ / 4;
 		ptr->prejif = j;
 		add_timer(&ptr->timer);
 	} else
-		wake_up_interruptible(&ptr->wait);
+		wake_up_interruptible(&sdev_wait);
 }
 
-static int sdev_proc(char *buf, char **start, off_t off, int count, int *eof, void *unused_dat)
+static int sdev_proc(char *buf, char **start, off_t off, int count, int *eof, void *dat)
 {
-	struct sdevdata *data;
-	unsigned long j = jiffies;
-	char *buf2 = buf;
+	int len;
+	unsigned long  jif;
+	unsigned long  jif64;
+	struct timeval val;
+	struct timespec spec;
 
-	data = kmalloc(sizeof(*data), GFP_KERNEL);	
-	if (!data)
-		return -ENOMEM;
-	memset(data, 0, sizeof(struct sdevdata));
-	init_timer(&data->timer);
-	init_waitqueue_head(&data->wait);
-
-	data->prejif = j;
-	data->buf = buf2;
-	data->loops = LOOPS;
-	data->timer.data = (unsigned long)data;
-	data->timer.function = sdev_timer;
-	data->timer.expires = j + 10;
-	add_timer(&data->timer);
-	wait_event_interruptible(data->wait, !data->loops);
-	if (signal_pending(current))
+	init_timer(&data.timer);
+	data.prejif = jiffies;
+	data.buf = buf;
+	data.loops = LOOPS;
+	data.timer.data = (unsigned long)&data;
+	data.timer.function = sdev_timer;
+	data.timer.expires =  data.prejif + HZ/4;
+	add_timer(&data.timer);
+	if (wait_event_interruptible(sdev_wait, data.loops == 0) < 0)
 		return -ERESTARTSYS;
-//	*start = buf; //this is important to let proc output contingously
-	buf2 = data->buf;
-	kfree(data);
+	*start = buf; //this is important to let proc output contingously
+	len = data.buf - buf;
 	*eof = 1;
-	return buf2 - buf;
+	return len;
 }
 
 static int __init start(void)
 {
+	unsigned long count;
+	count = jiffies;
 	if (create_proc_read_entry("sdev", 0, NULL, sdev_proc, NULL) == NULL) {
 		printk("error when create proc entry\n");
 		return -EFAULT;
