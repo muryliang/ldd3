@@ -20,14 +20,13 @@ struct sdevdata {
 	wait_queue_head_t wait;
 	struct workqueue_struct *wq;
 	struct work_struct wk;
-	struct delayed_work dwk;
 };
 
 //static struct sdevdata data;
 
 static void sdev_timer(struct work_struct  *work)
 {
-	struct sdevdata *ptr = container_of(work, struct sdevdata, dwk.work);
+	struct sdevdata *ptr = container_of(work, struct sdevdata, wk);
 	unsigned long j = jiffies;
 	ptr->buf += sprintf(ptr->buf, "%9li  %3li  %i  %6i %i %s\n",
 			j, j - ptr->prejif, in_interrupt() ? 1 : 0,
@@ -35,8 +34,7 @@ static void sdev_timer(struct work_struct  *work)
 	if (--ptr->loops) {
 		ptr->prejif = j;
 //		tasklet_hi_schedule(&ptr->t);
-	//	queue_delayed_work(ptr->wq, &ptr->dwk,10);
-		queue_delayed_work(ptr->wq, &ptr->dwk,10);
+		queue_work(ptr->wq, &ptr->wk);
 	} else
 		wake_up_interruptible(&ptr->wait);
 }
@@ -52,20 +50,21 @@ static int sdev_proc(char *buf, char **start, off_t off, int count, int *eof, vo
 		return -ENOMEM;
 	memset(data, 0, sizeof(struct sdevdata));
 	init_waitqueue_head(&data->wait);
+//	tasklet_init(&data->t, sdev_timer, (unsigned long)data);
 	data->prejif = j;
 	data->buf = buf2;
 	data->loops = LOOPS;
 	data->wq = create_workqueue("swork");
-	INIT_DELAYED_WORK(&data->dwk, sdev_timer);
-	queue_delayed_work(data->wq, &data->dwk, 10);
+	INIT_WORK(&data->wk, sdev_timer);
+	queue_work(data->wq, &data->wk);
+//	tasklet_hi_schedule(&data->t);
 	wait_event_interruptible(data->wait, !data->loops);
 	if (signal_pending(current))
 		return -ERESTARTSYS;
 
 //	*start = buf; //this is important to let proc output contingously
 	buf2 = data->buf;
-//	kfree(data);
-	destroy_workqueue(data->wq);
+	kfree(data);
 	*eof = 1;
 	return buf2 - buf;
 }
