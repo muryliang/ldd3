@@ -1,0 +1,1 @@
+cmd_/root/git/ldd3/time/workqueue.ko := ld -r -m elf_x86_64 -T /root/git/linux-2.6.35/scripts/module-common.lds --build-id -o /root/git/ldd3/time/workqueue.ko /root/git/ldd3/time/workqueue.o /root/git/ldd3/time/workqueue.mod.o
