@@ -106,17 +106,41 @@ static void sdev_vm_close(struct vm_area_struct *vma)
 	pr_info("in vm close\n");
 }
 
+static int sdev_vm_nopage(struct vm_area_struct *vma,
+				struct vm_fault *vmf)
+{
+	struct page *pageptr;
+	void *ptr = (void*)((unsigned long)sptr->buf & PAGE_MASK);
+//	unsigned long pageframe = vma->vm_pgoff + vmf->pgoff;
+
+//	if (!pfn_valid(pageframe))
+//		return -EFAULT;
+//	pageptr = pfn_to_page(pageframe);
+	pageptr = virt_to_page(ptr);
+	get_page(pageptr);
+	/*
+	if (type)
+		*type = VM_FAULT_MINOR;
+		*/
+	vmf->page = pageptr;
+	return 0;
+}
+
 static struct vm_operations_struct  sdev_vm_ops = {
 	.open = sdev_vm_open,
 	.close = sdev_vm_close,
+	.fault = sdev_vm_nopage,
 };
 
 static int sdev_mmap(struct file *file, struct vm_area_struct *vma)
 {
-	if (remap_pfn_range(vma, vma->vm_start, vma->vm_pgoff, vma->vm_end - vma->vm_start,
-				vma->vm_page_prot))
-				return -EAGAIN;
-	pr_info("start %lx end %lx pgoff %ld \n", (long)vma->vm_start, (long)vma->vm_end, (long)vma->vm_pgoff);
+	unsigned long offset = vma->vm_pgoff << PAGE_SHIFT;
+
+
+	if (offset >= __pa(high_memory) || (file->f_flags & O_SYNC))
+		vma->vm_flags |= VM_IO;
+	vma->vm_flags |= VM_RESERVED;
+
 	vma->vm_ops = &sdev_vm_ops;
 	sdev_vm_open(vma);
 	return 0;
@@ -153,11 +177,12 @@ static int __init start(void)
 
 	cdev_init(&ptr->cdev, &sdev_fops);
 	sema_init(&ptr->sem, 1);
-	if (!(ptr->buf = kmalloc(SSIZE, GFP_KERNEL)))
+	if (!(ptr->buf = (char*)__get_free_page(GFP_KERNEL)))
 	{
 		err = -ENOMEM;
 		goto err2;
 	}
+	pr_info("buf's vritual address is %lx\n", (unsigned long)ptr->buf);
 	ptr->wp = ptr->rp = ptr->buf;
 	ptr->end = ptr->buf + SSIZE;
 	if (cdev_add(&ptr->cdev, ptr->num, 1) < 0) {
@@ -179,7 +204,7 @@ err1:
 
 static void __exit end(void)
 {
-	kfree(sptr->buf);
+	free_page(sptr->buf);
 	cdev_del(&sptr->cdev);
 	unregister_chrdev_region(sptr->num, 1);
 	kfree(sptr);
