@@ -5,12 +5,15 @@
 #include <linux/slab.h>
 #include <linux/vmalloc.h>
 #include <linux/mm.h>
+//#include <asm-generic/sections.h>
+//#include <linux/spinlock.h>
 
 static int major = 0;
 module_param(major, int, 0600);
 MODULE_PARM_DESC(major, "the major of  device");
 
 
+DEFINE_PER_CPU(int, mpcpu) = 2;
 static char *name = "mdev";
 
 struct mycdev {
@@ -29,6 +32,8 @@ static int mdev_open(struct inode *inode, struct file *file)
 	struct kmem_cache *kmc;
 	struct mycdev *tcdev;
 	unsigned long pfn;
+	char *cpcpu = alloc_percpu(char);
+	char *tmp;
 	file->private_data = mdev;
 	pr_info("in open\n");
 	pr_info("test kmem cache");
@@ -71,6 +76,29 @@ static int mdev_open(struct inode *inode, struct file *file)
 	pfn = page_to_pfn(mp);
 	pr_info("get struct page from highmem pfn is %ld\n", pfn);
 	__free_pages(mp, 3);
+
+	pr_info("pring percpu pos\n");
+//	pr_info("load: %p, start %p, end %p\n", __per_cpu_load, __per_cpu_start, __per_cpu_end);
+	pr_info("pcpu base addr : %p\n", pcpu_base_addr);
+	pr_info("NR_CPUS %d\n", NR_CPUS);
+	pr_info("offset  %lx %lx %lx %lx\n", __per_cpu_offset[0], __per_cpu_offset[1], __per_cpu_offset[2], __per_cpu_offset[3]);
+	pr_info("offset  %lx %lx %lx %lx\n", per_cpu(this_cpu_off, 0), per_cpu(this_cpu_off, 1), per_cpu(this_cpu_off, 2),  per_cpu(this_cpu_off,3));
+	pr_info("percpu var is %d\n", get_cpu_var(mpcpu));
+	put_cpu_var(mpcpu);
+	get_cpu_var(mpcpu) += 2;
+	put_cpu_var(mpcpu);
+	pr_info("percpu var is %d\n", get_cpu_var(mpcpu));
+	pr_info("the cpu now is %d\n", smp_processor_id());
+	put_cpu_var(mpcpu);
+
+	get_cpu();
+	tmp = per_cpu_ptr(cpcpu, 0);
+	*tmp = 'a';
+	tmp = per_cpu_ptr(cpcpu, 2);
+	*tmp = 'b';
+	put_cpu();
+	pr_info("per cpu ptr for 0: %c, 2: %c, 1: %x\n", *per_cpu_ptr(cpcpu, 0), *per_cpu_ptr(cpcpu, 2), *per_cpu_ptr(cpcpu, 1));
+	pr_info("begin disabled irq for cpu %d\n", smp_processor_id());
 
 	return 0;
 }
@@ -138,10 +166,56 @@ static void do_chrdev_exit(struct mycdev *mdev)
 static int __init start(void)
 {
 
+	spinlock_t a;
+	rwlock_t b;
+	struct semaphore sem;
+	seqlock_t seq;
+	unsigned  start;
+	atomic_t aa = ATOMIC_INIT(2);
+
+	seqlock_init(&seq);
+	spin_lock_init(&a);
+	rwlock_init(&b);
+
 	mdev = do_chrdev_init();
 	if (IS_ERR(mdev))
 		return -EFAULT;
 	pr_info("success alloc chrdev with devnum %x\n", mdev->num);
+	pr_info("start disable local irq\n");
+	local_irq_disable();
+	pr_info("now disabled on cpu %d\n", smp_processor_id());
+	local_irq_enable();
+	spin_lock(&a);
+	pr_info("in spinlock\n");
+	if (spin_trylock(&a) == 0)
+		pr_info("in spinlock try lock failed\n");
+	spin_unlock(&a);
+
+	pr_info("lock write rwlock\n");
+	write_lock(&b);
+	write_unlock(&b);
+	read_lock(&b);
+	pr_info("read lock success\n");
+	read_unlock(&b);
+	pr_info("again begin write lock\n");
+	write_lock(&b);
+	write_unlock(&b);
+
+	sema_init(&sem, 1);
+	if (down_interruptible(&sem) ==  0)
+		pr_info("down success\n");
+	up(&sem);
+	pr_info("up success\n");
+	pr_info("begin seq read\n");
+	do {
+		start = read_seqbegin(&seq);
+		pr_info("now begin write seq lock\n");
+//		write_seqlock(&seq);
+//		pr_info("now in seq write\n");
+//		write_sequnlock(&seq);
+	} while(read_seqretry(&seq, start));
+
+	pr_info("atomic read return %d\n", (int)atomic_read(&aa));
 	return 0;
 }
 
