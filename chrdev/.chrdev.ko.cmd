@@ -1,0 +1,1 @@
+cmd_/root/git/ldd3/chrdev/chrdev.ko := ld -r -m elf_x86_64 -T /root/git/linux-2.6.35/scripts/module-common.lds --build-id -o /root/git/ldd3/chrdev/chrdev.ko /root/git/ldd3/chrdev/chrdev.o /root/git/ldd3/chrdev/chrdev.mod.o
