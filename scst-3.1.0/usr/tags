@@ -1,0 +1,292 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+ARRAY_SIZE	fileio/common.h	122;"	d
+ARRAY_SIZE	stpgd/stpgd_main.c	49;"	d	file:
+BYTE	fileio/common.h	51;"	d
+CMDDT	fileio/common.h	39;"	d
+DBD	fileio/common.h	42;"	d
+DEBUG_INC_DIR	events/Makefile	/^DEBUG_INC_DIR := ..\/include$/;"	m
+DEBUG_INC_DIR	fileio/Makefile	/^DEBUG_INC_DIR := ..\/include$/;"	m
+DEBUG_INC_DIR	stpgd/Makefile	/^DEBUG_INC_DIR := ..\/include$/;"	m
+DEFAULT_LOG_FLAGS	events/events.c	39;"	d	file:
+DEFAULT_LOG_FLAGS	events/events.c	48;"	d	file:
+DEFAULT_LOG_FLAGS	events/events.c	51;"	d	file:
+DEFAULT_LOG_FLAGS	fileio/fileio.c	52;"	d	file:
+DEFAULT_LOG_FLAGS	fileio/fileio.c	61;"	d	file:
+DEFAULT_LOG_FLAGS	fileio/fileio.c	64;"	d	file:
+DEFAULT_LOG_FLAGS	stpgd/stpgd_main.c	33;"	d	file:
+DEFAULT_LOG_FLAGS	stpgd/stpgd_main.c	42;"	d	file:
+DEFAULT_LOG_FLAGS	stpgd/stpgd_main.c	45;"	d	file:
+DEFAULT_TRANSITION_TIME	stpgd/stpgd_main.c	27;"	d	file:
+DEF_BLOCK_SHIFT	fileio/fileio.c	73;"	d	file:
+DEF_HEADS	fileio/common.h	53;"	d
+DEF_SECTORS	fileio/common.h	52;"	d
+DPOFUA	fileio/common.h	44;"	d
+EVENTS_DIR	Makefile	/^EVENTS_DIR=events$/;"	m
+EVPD	fileio/common.h	38;"	d
+EXTRACHECKS_BUG_ON	include/debug.h	36;"	d
+EXTRACHECKS_BUG_ON	include/debug.h	38;"	d
+FILEIO_DIR	Makefile	/^FILEIO_DIR=fileio$/;"	m
+FIO_REV	fileio/common.h	33;"	d
+INQ_BUF_SZ	fileio/common.h	37;"	d
+INSTALL_DIR	events/Makefile	/^INSTALL_DIR := $(DESTDIR)$(PREFIX)\/bin\/scst$/;"	m
+INSTALL_DIR	fileio/Makefile	/^INSTALL_DIR := $(DESTDIR)$(PREFIX)\/bin\/scst$/;"	m
+INSTALL_DIR	stpgd/Makefile	/^INSTALL_DIR := $(DESTDIR)$(PREFIX)\/sbin$/;"	m
+LIBS	events/Makefile	/^LIBS = -lpthread$/;"	m
+LIBS	fileio/Makefile	/^LIBS = -lpthread$/;"	m
+LIBS	stpgd/Makefile	/^LIBS = -lpthread$/;"	m
+LOG_PREFIX	include/debug.h	77;"	d
+MAX_ALLOWED_EVENTS	events/events.c	71;"	d	file:
+MAX_USN_LEN	fileio/common.h	35;"	d
+MAX_VDEVS	fileio/fileio.c	76;"	d	file:
+MSENSE_BUF_SZ	fileio/common.h	41;"	d
+MULTI_CMDS_CNT	fileio/common.c	790;"	d	file:
+NDEBUG	include/debug.h	257;"	d
+OBJS_F	events/Makefile	/^OBJS_F = $(SRCS_F:.c=.o)$/;"	m
+OBJS_F	fileio/Makefile	/^OBJS_F = $(SRCS_F:.c=.o)$/;"	m
+OBJS_F	stpgd/Makefile	/^OBJS_F = $(SRCS_F:.c=.o)$/;"	m
+ON_STPG	stpgd/Makefile	/^ON_STPG := $(DESTDIR)$(PREFIX)\/bin\/scst\/scst_on_stpg$/;"	m
+PF	fileio/common.h	47;"	d
+PREFIX	events/Makefile	/^	PREFIX=\/usr\/local$/;"	m
+PREFIX	fileio/Makefile	/^        PREFIX=\/usr\/local$/;"	m
+PREFIX	stpgd/Makefile	/^	PREFIX=\/usr\/local$/;"	m
+PRINT	include/debug.h	60;"	d
+PRINTN	include/debug.h	68;"	d
+PRINT_BUFFER	include/debug.h	112;"	d
+PRINT_BUFFER	include/debug.h	121;"	d
+PRINT_ERROR	include/debug.h	195;"	d
+PRINT_ERROR	include/debug.h	280;"	d
+PRINT_ERROR	include/debug.h	291;"	d
+PRINT_INFO	include/debug.h	181;"	d
+PRINT_INFO	include/debug.h	273;"	d
+PRINT_INFO	include/debug.h	286;"	d
+PRINT_WARNING	include/debug.h	188;"	d
+PRINT_WARNING	include/debug.h	276;"	d
+PRINT_WARNING	include/debug.h	288;"	d
+PROGS	events/Makefile	/^PROGS = events$/;"	m
+PROGS	fileio/Makefile	/^PROGS = fileio_tgt$/;"	m
+PROGS	stpgd/Makefile	/^PROGS = stpgd$/;"	m
+PS	fileio/common.h	49;"	d
+SCST_INC_DIR	events/Makefile	/^SCST_INC_DIR := $(shell if [ -e "$$PWD\/..\/..\/scst" ];			\\$/;"	m
+SCST_INC_DIR	fileio/Makefile	/^SCST_INC_DIR := $(shell if [ -e "$$PWD\/..\/..\/scst" ];			\\$/;"	m
+SCST_INC_DIR	stpgd/Makefile	/^SCST_INC_DIR := $(shell if [ -e "$$PWD\/..\/..\/scst" ];			\\$/;"	m
+SHELL	Makefile	/^SHELL=\/bin\/bash$/;"	m
+SHELL	events/Makefile	/^SHELL=\/bin\/bash$/;"	m
+SHELL	fileio/Makefile	/^SHELL=\/bin\/bash$/;"	m
+SHELL	stpgd/Makefile	/^SHELL=\/bin\/bash$/;"	m
+SP	fileio/common.h	48;"	d
+SRCS_F	events/Makefile	/^SRCS_F = events.c debug.c$/;"	m
+SRCS_F	fileio/Makefile	/^SRCS_F = fileio.c common.c debug.c crc32.c$/;"	m
+SRCS_F	stpgd/Makefile	/^SRCS_F = stpgd_main.c debug.c$/;"	m
+STPGD_DIR	Makefile	/^STPGD_DIR=stpgd$/;"	m
+THREADS	fileio/fileio.c	74;"	d	file:
+TRACE	include/debug.h	103;"	d
+TRACE	include/debug.h	120;"	d
+TRACE_ALL	include/debug.h	58;"	d
+TRACE_BUFF	include/debug.h	47;"	d
+TRACE_BUFFER	include/debug.h	161;"	d
+TRACE_BUFFER	include/debug.h	264;"	d
+TRACE_BUFF_FLAG	include/debug.h	171;"	d
+TRACE_BUFF_FLAG	include/debug.h	265;"	d
+TRACE_BUF_SIZE	include/debug.c	38;"	d	file:
+TRACE_DBG	include/debug.h	141;"	d
+TRACE_DBG	include/debug.h	261;"	d
+TRACE_DBG_SPECIAL	include/debug.h	150;"	d
+TRACE_DBG_SPECIAL	include/debug.h	262;"	d
+TRACE_DEBUG	include/debug.h	42;"	d
+TRACE_ENTRY	include/debug.h	202;"	d
+TRACE_ENTRY	include/debug.h	266;"	d
+TRACE_ENTRYEXIT	include/debug.h	46;"	d
+TRACE_EXIT	include/debug.h	215;"	d
+TRACE_EXIT	include/debug.h	267;"	d
+TRACE_EXIT_HRES	include/debug.h	241;"	d
+TRACE_EXIT_HRES	include/debug.h	269;"	d
+TRACE_EXIT_RES	include/debug.h	227;"	d
+TRACE_EXIT_RES	include/debug.h	268;"	d
+TRACE_FUNCTION	include/debug.h	43;"	d
+TRACE_LINE	include/debug.h	44;"	d
+TRACE_MEM	include/debug.h	132;"	d
+TRACE_MEM	include/debug.h	260;"	d
+TRACE_MEMORY	include/debug.h	48;"	d
+TRACE_MGMT	include/debug.h	52;"	d
+TRACE_MGMT_DBG	include/debug.h	152;"	d
+TRACE_MGMT_DBG	include/debug.h	263;"	d
+TRACE_MGMT_DEBUG	include/debug.h	53;"	d
+TRACE_MINOR	include/debug.h	51;"	d
+TRACE_NULL	include/debug.h	41;"	d
+TRACE_ORDER	include/debug.h	57;"	d
+TRACE_OUT_OF_MEM	include/debug.h	50;"	d
+TRACE_PID	include/debug.h	45;"	d
+TRACE_SCSI	include/debug.h	54;"	d
+TRACE_SG	include/debug.h	49;"	d
+TRACE_SN	events/events.c	43;"	d	file:
+TRACE_SN	fileio/fileio.c	56;"	d	file:
+TRACE_SN	stpgd/stpgd_main.c	37;"	d	file:
+TRACE_SPECIAL	include/debug.h	55;"	d
+TRACE_TIME	include/debug.h	56;"	d
+UPDC32	fileio/crc32.c	95;"	d	file:
+VENDOR	fileio/common.h	31;"	d
+VERSION_STR	include/version.h	22;"	d
+WCE	fileio/common.h	45;"	d
+WP	fileio/common.h	43;"	d
+WRITE_SAME_10	fileio/common.h	27;"	d
+__DEBUG_H	include/debug.h	22;"	d
+__LOG_PREFIX	include/debug.h	80;"	d
+__LOG_PREFIX	include/debug.h	82;"	d
+__VERSION_H	include/version.h	20;"	d
+align_alloc	fileio/fileio.c	/^static void *align_alloc(size_t size)$/;"	f	file:
+alloc_fn	fileio/common.h	/^	void *(*alloc_fn)(size_t size);$/;"	m	struct:vdisk_dev
+alloc_fn	fileio/fileio.c	/^static void *(*alloc_fn)(size_t size) = align_alloc;$/;"	v	file:
+allowed_events	events/events.c	/^static struct scst_event allowed_events[MAX_ALLOWED_EVENTS];$/;"	v	typeref:struct:scst_event	file:
+allowed_events_num	events/events.c	/^static int allowed_events_num;$/;"	v	file:
+app_name	events/events.c	/^char *app_name;$/;"	v
+app_name	fileio/fileio.c	/^char *app_name;$/;"	v
+app_name	stpgd/stpgd_main.c	/^char *app_name;$/;"	v
+block_shift	fileio/common.h	/^	int block_shift;$/;"	m	struct:vdisk_dev
+block_shift	fileio/fileio.c	/^static int block_shift = DEF_BLOCK_SHIFT;$/;"	v	file:
+block_size	fileio/common.h	/^	uint32_t block_size;$/;"	m	struct:vdisk_dev
+block_size	fileio/fileio.c	/^static int block_size = (1 << DEF_BLOCK_SHIFT);$/;"	v	file:
+caching_pg	fileio/common.c	/^static int caching_pg(unsigned char *p, int pcontrol,$/;"	f	file:
+cdrom_empty	fileio/common.h	/^	unsigned int cdrom_empty:1;$/;"	m	struct:vdisk_dev
+cmd	fileio/common.h	/^	struct scst_user_get_cmd *cmd;$/;"	m	struct:vdisk_cmd	typeref:struct:vdisk_cmd::scst_user_get_cmd
+crc32buf	fileio/crc32.c	/^uint32_t crc32buf(const char *buf, size_t len)$/;"	f
+crc_32_tab	fileio/crc32.c	/^static uint32_t crc_32_tab[] = { \/* CRC polynomial 0xedb88320 *\/$/;"	v	file:
+ctrl_m_pg	fileio/common.c	/^static int ctrl_m_pg(unsigned char *p, int pcontrol,$/;"	f	file:
+debug_done	include/debug.c	/^void debug_done(void)$/;"	f
+debug_done	include/debug.h	/^static inline void debug_done(void) {}$/;"	f
+debug_init	include/debug.c	/^int debug_init(void)$/;"	f
+debug_init	include/debug.h	/^static inline int debug_init(void) { return 0; }$/;"	f
+debug_print_buffer	include/debug.c	/^void debug_print_buffer(const void *data, int len)$/;"	f
+debug_print_prefix	include/debug.c	/^int debug_print_prefix(unsigned long trace_flag, const char *prefix,$/;"	f
+debug_tm_ignore	fileio/common.h	/^	unsigned int debug_tm_ignore:1;$/;"	m	struct:vdisk_dev
+debug_tm_ignore	fileio/fileio.c	/^static int debug_tm_ignore;$/;"	v	file:
+debug_tm_ignore_all	fileio/common.h	/^	volatile int debug_tm_ignore_all;$/;"	m	struct:vdisk_dev
+dev	fileio/common.h	/^	struct vdisk_dev *dev;$/;"	m	struct:vdisk_cmd	typeref:struct:vdisk_cmd::vdisk_dev
+dev_mutex	fileio/common.h	/^	pthread_mutex_t dev_mutex;$/;"	m	struct:vdisk_dev
+devs	fileio/fileio.c	/^static struct vdisk_dev devs[MAX_VDEVS];$/;"	v	typeref:struct:vdisk_dev	file:
+disconnect_pg	fileio/common.c	/^static int disconnect_pg(unsigned char *p, int pcontrol)$/;"	f	file:
+do_alloc_mem	fileio/common.c	/^static int do_alloc_mem(struct vdisk_cmd *vcmd)$/;"	f	file:
+do_cached_mem_free	fileio/common.c	/^static int do_cached_mem_free(struct vdisk_cmd *vcmd)$/;"	f	file:
+do_exec	fileio/common.c	/^static int do_exec(struct vdisk_cmd *vcmd)$/;"	f	file:
+do_ext_copy_remap	fileio/common.c	/^static int do_ext_copy_remap(struct vdisk_cmd *vcmd)$/;"	f	file:
+do_on_free_cmd	fileio/common.c	/^static int do_on_free_cmd(struct vdisk_cmd *vcmd)$/;"	f	file:
+do_parse	fileio/common.c	/^static int do_parse(struct vdisk_cmd *vcmd)$/;"	f	file:
+do_sess	fileio/common.c	/^static int do_sess(struct vdisk_cmd *vcmd)$/;"	f	file:
+do_tm	fileio/common.c	/^static int do_tm(struct vdisk_cmd *vcmd, int done)$/;"	f	file:
+err_recov_pg	fileio/common.c	/^static int err_recov_pg(unsigned char *p, int pcontrol)$/;"	f	file:
+exec_fsync	fileio/common.c	/^static int exec_fsync(struct vdisk_cmd *vcmd)$/;"	f	file:
+exec_inquiry	fileio/common.c	/^static void exec_inquiry(struct vdisk_cmd *vcmd)$/;"	f	file:
+exec_mode_select	fileio/common.c	/^static void exec_mode_select(struct vdisk_cmd *vcmd)$/;"	f	file:
+exec_mode_sense	fileio/common.c	/^static void exec_mode_sense(struct vdisk_cmd *vcmd)$/;"	f	file:
+exec_prevent_allow_medium_removal	fileio/common.c	/^static void exec_prevent_allow_medium_removal(struct vdisk_cmd *vcmd)$/;"	f	file:
+exec_read	fileio/common.c	/^static void exec_read(struct vdisk_cmd *vcmd, loff_t loff)$/;"	f	file:
+exec_read_capacity	fileio/common.c	/^static void exec_read_capacity(struct vdisk_cmd *vcmd)$/;"	f	file:
+exec_read_capacity16	fileio/common.c	/^static void exec_read_capacity16(struct vdisk_cmd *vcmd)$/;"	f	file:
+exec_read_toc	fileio/common.c	/^static void exec_read_toc(struct vdisk_cmd *vcmd)$/;"	f	file:
+exec_request_sense	fileio/common.c	/^static void exec_request_sense(struct vdisk_cmd *vcmd)$/;"	f	file:
+exec_verify	fileio/common.c	/^static void exec_verify(struct vdisk_cmd *vcmd, loff_t loff)$/;"	f	file:
+exec_write	fileio/common.c	/^static void exec_write(struct vdisk_cmd *vcmd, loff_t loff)$/;"	f	file:
+exec_write_same	fileio/common.c	/^static void exec_write_same(struct vdisk_cmd *vcmd)$/;"	f	file:
+fd	fileio/common.h	/^	int fd;$/;"	m	struct:vdisk_cmd
+file_name	fileio/common.h	/^	char *file_name;	\/* File name *\/$/;"	m	struct:vdisk_dev
+file_size	fileio/common.h	/^	loff_t file_size;	\/* in bytes *\/$/;"	m	struct:vdisk_dev
+find_empty_tgt_dev	fileio/common.c	/^struct vdisk_tgt_dev *find_empty_tgt_dev(struct vdisk_dev *dev)$/;"	f
+find_tgt_dev	fileio/common.c	/^struct vdisk_tgt_dev *find_tgt_dev(struct vdisk_dev *dev, uint64_t sess_h)$/;"	f
+flush_interval	fileio/fileio.c	/^static int flush_interval;$/;"	v	file:
+format_pg	fileio/common.c	/^static int format_pg(unsigned char *p, int pcontrol,$/;"	f	file:
+gen_dev_id_num	fileio/common.c	/^uint64_t gen_dev_id_num(const struct vdisk_dev *dev)$/;"	f
+gettid	include/debug.c	/^pid_t gettid(void)$/;"	f
+handle_stpg_received	stpgd/stpgd_main.c	/^int handle_stpg_received(struct scst_event_user *event_user)$/;"	f
+handle_tm_received	events/events.c	/^static void handle_tm_received(struct scst_event_user *event_user)$/;"	f	file:
+iec_m_pg	fileio/common.c	/^static int iec_m_pg(unsigned char *p, int pcontrol)$/;"	f	file:
+invoke_stpg	stpgd/stpgd_main.c	/^int invoke_stpg(const uint8_t *device_name,$/;"	f
+log_daemon	events/events.c	/^bool log_daemon = false; \/* needed for the tracing infrastructure *\/$/;"	v
+log_daemon	fileio/fileio.c	/^bool log_daemon = false;$/;"	v
+log_daemon	stpgd/stpgd_main.c	/^bool log_daemon = true;$/;"	v
+long_options	events/events.c	/^static struct option const long_options[] = {$/;"	v	file:
+long_options	fileio/fileio.c	/^static struct option const long_options[] =$/;"	v	file:
+long_options	stpgd/stpgd_main.c	/^static struct option const long_options[] = {$/;"	v	file:
+main	events/events.c	/^int main(int argc, char **argv)$/;"	f
+main	fileio/fileio.c	/^int main(int argc, char **argv)$/;"	f
+main	stpgd/stpgd_main.c	/^int main(int argc, char **argv)$/;"	f
+main_loop	fileio/common.c	/^void *main_loop(void *arg)$/;"	f
+max	fileio/common.h	116;"	d
+may_need_to_free_pbuf	fileio/common.h	/^	unsigned int may_need_to_free_pbuf:1;$/;"	m	struct:vdisk_cmd
+media_changed	fileio/common.h	/^	unsigned int media_changed:1;$/;"	m	struct:vdisk_dev
+memory_reuse_type	fileio/fileio.c	/^static int memory_reuse_type = SCST_USER_MEM_REUSE_ALL;$/;"	v	file:
+min	fileio/common.h	110;"	d
+name	fileio/common.h	/^	char *name;		\/* Name of virtual device,$/;"	m	struct:vdisk_dev
+nblocks	fileio/common.h	/^	uint64_t nblocks;$/;"	m	struct:vdisk_dev
+non_blocking	events/events.c	/^static int non_blocking;$/;"	v	file:
+non_blocking	fileio/common.h	/^	unsigned int non_blocking:1;$/;"	m	struct:vdisk_dev
+non_blocking	fileio/fileio.c	/^static int non_blocking, sgv_shared, sgv_single_alloc_pages, sgv_purge_interval;$/;"	v	file:
+nullio	fileio/common.h	/^	unsigned int nullio:1;$/;"	m	struct:vdisk_dev
+nullio	fileio/fileio.c	/^static int wt_flag, rd_only_flag, o_direct_flag, nullio, nv_cache;$/;"	v	file:
+num_devs	fileio/fileio.c	/^static int num_devs;$/;"	v	file:
+nv_cache	fileio/common.h	/^	unsigned int nv_cache:1;$/;"	m	struct:vdisk_dev
+nv_cache	fileio/fileio.c	/^static int wt_flag, rd_only_flag, o_direct_flag, nullio, nv_cache;$/;"	v	file:
+o_direct_flag	fileio/common.h	/^	unsigned int o_direct_flag:1;$/;"	m	struct:vdisk_dev
+o_direct_flag	fileio/fileio.c	/^static int wt_flag, rd_only_flag, o_direct_flag, nullio, nv_cache;$/;"	v	file:
+on_free_cmd_type	fileio/fileio.c	/^static int on_free_cmd_type = SCST_USER_ON_FREE_CMD_IGNORE;$/;"	v	file:
+on_free_cmd_type_set	fileio/fileio.c	/^static int on_free_cmd_type_set;$/;"	v	file:
+open_dev_fd	fileio/common.c	/^static int open_dev_fd(struct vdisk_dev *dev)$/;"	f	file:
+parse_type	fileio/fileio.c	/^static int parse_type = SCST_USER_PARSE_STANDARD;$/;"	v	file:
+prealloc_buffer_size	fileio/fileio.c	/^static int sgv_disable_clustered_pool, prealloc_buffers_num, prealloc_buffer_size;$/;"	v	file:
+prealloc_buffers	fileio/fileio.c	/^int prealloc_buffers(struct vdisk_dev *dev)$/;"	f
+prealloc_buffers_num	fileio/fileio.c	/^static int sgv_disable_clustered_pool, prealloc_buffers_num, prealloc_buffer_size;$/;"	v	file:
+prevent_allow_medium_removal	fileio/common.h	/^	unsigned int prevent_allow_medium_removal:1;$/;"	m	struct:vdisk_dev
+process_cmd	fileio/common.c	/^static int process_cmd(struct vdisk_cmd *vcmd)$/;"	f	file:
+rd_only_flag	fileio/common.h	/^	unsigned int rd_only_flag:1;$/;"	m	struct:vdisk_dev
+rd_only_flag	fileio/fileio.c	/^static int wt_flag, rd_only_flag, o_direct_flag, nullio, nv_cache;$/;"	v	file:
+reply	fileio/common.h	/^	struct scst_user_reply_cmd *reply;$/;"	m	struct:vdisk_cmd	typeref:struct:vdisk_cmd::scst_user_reply_cmd
+rigid_geo_pg	fileio/common.c	/^static int rigid_geo_pg(unsigned char *p, int pcontrol,$/;"	f	file:
+sBUG	include/debug.h	32;"	d
+sBUG_ON	include/debug.h	33;"	d
+scst_calc_block_shift	fileio/fileio.c	/^static int scst_calc_block_shift(int sector_size)$/;"	f	file:
+scst_usr_fd	fileio/common.h	/^	int scst_usr_fd;$/;"	m	struct:vdisk_dev
+sense	fileio/common.h	/^	uint8_t sense[SCST_SENSE_BUFFERSIZE];$/;"	m	struct:vdisk_cmd
+sess_h	fileio/common.h	/^	uint64_t sess_h;$/;"	m	struct:vdisk_tgt_dev
+set_busy	fileio/common.c	/^void set_busy(struct vdisk_cmd *vcmd)$/;"	f
+set_cmd_error	fileio/common.c	/^void set_cmd_error(struct vdisk_cmd *vcmd, int key, int asc, int ascq)$/;"	f
+set_cmd_error_status	fileio/common.c	/^static inline void set_cmd_error_status(struct vdisk_cmd *vcmd,$/;"	f	file:
+set_resp_data_len	fileio/common.c	/^static void set_resp_data_len(struct vdisk_cmd *vcmd, int32_t resp_data_len)$/;"	f	file:
+set_sense	fileio/common.c	/^static int set_sense(uint8_t *buffer, int len, int key, int asc, int ascq)$/;"	f	file:
+set_wt	fileio/common.c	/^static int set_wt(struct vdisk_dev *dev, int wt)$/;"	f	file:
+sgv_disable_clustered_pool	fileio/fileio.c	/^static int sgv_disable_clustered_pool, prealloc_buffers_num, prealloc_buffer_size;$/;"	v	file:
+sgv_purge_interval	fileio/fileio.c	/^static int non_blocking, sgv_shared, sgv_single_alloc_pages, sgv_purge_interval;$/;"	v	file:
+sgv_shared	fileio/fileio.c	/^static int non_blocking, sgv_shared, sgv_single_alloc_pages, sgv_purge_interval;$/;"	v	file:
+sgv_single_alloc_pages	fileio/fileio.c	/^static int non_blocking, sgv_shared, sgv_single_alloc_pages, sgv_purge_interval;$/;"	v	file:
+sig_chld	stpgd/stpgd_main.c	/^void sig_chld(int signal)$/;"	f
+sigalrm_handler	fileio/fileio.c	/^void sigalrm_handler(int signo)$/;"	f
+sigusr1_handler	fileio/fileio.c	/^void sigusr1_handler(int signo)$/;"	f
+start	fileio/fileio.c	/^int start(int argc, char **argv)$/;"	f
+stpg_event_loop	stpgd/stpgd_main.c	/^static int stpg_event_loop(void)$/;"	f	file:
+stpg_handle_tm_received	stpgd/stpgd_main.c	/^static void stpg_handle_tm_received(struct scst_event_user *event_user)$/;"	f	file:
+stpg_init_report_pipe	stpgd/stpgd_main.c	/^int stpg_init_report_pipe[2];$/;"	v
+stpg_path	stpgd/stpgd_main.c	/^char *stpg_path;$/;"	v
+tgt_devs	fileio/common.h	/^	struct vdisk_tgt_dev tgt_devs[64];$/;"	m	struct:vdisk_dev	typeref:struct:vdisk_dev::vdisk_tgt_dev
+threads	fileio/fileio.c	/^static int threads = THREADS;$/;"	v	file:
+trace_buf	include/debug.c	/^static char trace_buf[TRACE_BUF_SIZE];$/;"	v	file:
+trace_buf_lock	include/debug.c	/^static pthread_spinlock_t trace_buf_lock;$/;"	v	file:
+trace_flag	events/events.c	/^unsigned long trace_flag = DEFAULT_LOG_FLAGS;$/;"	v
+trace_flag	fileio/fileio.c	/^unsigned long trace_flag = DEFAULT_LOG_FLAGS;$/;"	v
+trace_flag	stpgd/stpgd_main.c	/^unsigned long trace_flag = DEFAULT_LOG_FLAGS;$/;"	v
+transition_timeout	stpgd/stpgd_main.c	/^int transition_timeout = DEFAULT_TRANSITION_TIME;$/;"	v
+type	fileio/common.h	/^	int type;$/;"	m	struct:vdisk_dev
+unreg_before_close	fileio/fileio.c	/^static int unreg_before_close;$/;"	v	file:
+usage	events/events.c	/^static void usage(void)$/;"	f	file:
+usage	fileio/fileio.c	/^static void usage(void)$/;"	f	file:
+usage	stpgd/stpgd_main.c	/^static void usage(int status)$/;"	f	file:
+use_multi	fileio/fileio.c	/^bool use_multi = true;$/;"	v
+usn	fileio/common.h	/^	char usn[MAX_USN_LEN];$/;"	m	struct:vdisk_dev
+vdisk_ID	fileio/fileio.c	/^int vdisk_ID;$/;"	v
+vdisk_cmd	fileio/common.h	/^struct vdisk_cmd$/;"	s
+vdisk_dev	fileio/common.h	/^struct vdisk_dev {$/;"	s
+vdisk_tgt_dev	fileio/common.h	/^struct vdisk_tgt_dev {$/;"	s
+wait_until_finished	stpgd/stpgd_main.c	/^int wait_until_finished(pid_t pid, unsigned long deadline, int *status, int child)$/;"	f
+wt_flag	fileio/common.h	/^	unsigned int wt_flag:1;$/;"	m	struct:vdisk_dev
+wt_flag	fileio/fileio.c	/^static int wt_flag, rd_only_flag, o_direct_flag, nullio, nv_cache;$/;"	v	file:
