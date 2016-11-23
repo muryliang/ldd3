@@ -6,7 +6,6 @@
 #include <linux/vmalloc.h>
 #include <linux/mm.h>
 #include <linux/interrupt.h>
-#include <linux/workqueue.h>
 //#include <asm-generic/sections.h>
 //#include <linux/spinlock.h>
 
@@ -165,23 +164,12 @@ static void do_chrdev_exit(struct mycdev *mdev)
 
 static void myts(unsigned long data)
 {
-	pr_info("now I got data %lx\n", data);
+	pr_info("now I got data %ld\n", data);
 	return ;
 }
-
-static void mywk(struct work_struct *ww)
-{
-	pr_info("in work func %p\n", ww);
-	return;
-}
 	
-static void mydlwk(struct work_struct *ww)
-{
-	pr_info("after 5s in work func %p\n", ww);
-	return;
-}
 
-static int  start(void)
+static int __init start(void)
 {
 
 	spinlock_t a;
@@ -190,11 +178,7 @@ static int  start(void)
 	seqlock_t seq;
 	unsigned  start;
 	atomic_t aa = ATOMIC_INIT(2);
-	static struct tasklet_struct ts;
-	static DECLARE_WORK(wk, mywk);
-	static DECLARE_DELAYED_WORK(dlwk, mydlwk);
-	static struct workqueue_struct *wq;
-	wq = create_workqueue("mywq");
+	struct tasklet_struct ts;
 
 	seqlock_init(&seq);
 	spin_lock_init(&a);
@@ -240,25 +224,14 @@ static int  start(void)
 
 	pr_info("atomic read return %d\n", (int)atomic_read(&aa));
 	pr_info("begin tasklet\n");
-	tasklet_init(&ts, myts, (unsigned long)&major);
+	tasklet_init(&ts, myts, &major);
 	tasklet_schedule(&ts);
-	pr_info("begin work\n");
-	queue_work(wq, &wk);
-	flush_work(&wk);
-	tasklet_kill(&ts);
-	queue_delayed_work(wq, &dlwk, 2*HZ);
-	msleep(3000);
-	destroy_workqueue(wq);
-
-
-//	msleep(1000);
 	return 0;
 }
 
 static void __exit end(void)
 {
 	do_chrdev_exit(mdev);
-//	tasklet_kill(&ts);
 	pr_info("success exit chrdev\n");
 }
 
