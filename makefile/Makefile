@@ -9,13 +9,14 @@ all: a c d
 .PHONY : all
 
 a : $(objs) $(deps)
+	@echo $(two-lines)
 	gcc -o a $(objs)
 
 $(objs) : b.h
 $(filter %.o,$(objs) d c ) : %.o : %.c
 	$(warning $^)
 	$(warning $<)
-	$(warning $(wildcard $^))
+	$(warning $(obj))
 	$(warning "next")
 	$(CC) -c  $< -o $@
 
@@ -27,8 +28,13 @@ $(deps) : %.d : %.c
 c d : c.o 
 	gcc c.o -o $@
 
+define two-lines
+echo aa
+echo $(objs)
+endef
+
 .PHONY : clean
 clean:
-#	$(warning $(obj))
+	$(warning $(obj))
 	-rm  -f $(exes)  $(objs)  $(deps) a.d.* b.d.* *.o
 
