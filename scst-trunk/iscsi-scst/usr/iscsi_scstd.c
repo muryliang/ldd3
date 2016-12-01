@@ -508,6 +508,7 @@ again:
 	case IOSTATE_READ_BHS:
 	case IOSTATE_READ_AHS_DATA:
 	      read_again:
+	      	printf("in event_conn iostate read %d\n", conn->iostate);
 		res = read(pollfd->fd, conn->buffer, conn->rwsize);
 		if (res <= 0) {
 			if (res == 0 || (errno != EINTR && errno != EAGAIN)) {
@@ -524,6 +525,7 @@ again:
 
 		switch (conn->iostate) {
 		case IOSTATE_READ_BHS:
+	      	printf("in sub event_conn iostate read %d\n", conn->iostate);
 			conn->iostate = IOSTATE_READ_AHS_DATA;
 			conn->req.ahssize = conn->req.bhs.ahslength * 4;
 			conn->req.datasize = ((conn->req.bhs.datalength[0] << 16) +
@@ -554,6 +556,7 @@ again:
 			/* fall-through */
 
 		case IOSTATE_READ_AHS_DATA:
+	      	printf("in sub data event_conn iostate read %d\n", conn->iostate);
 			conn_write_pdu(conn);
 			pollfd->events = POLLOUT;
 
@@ -573,6 +576,7 @@ again:
 	case IOSTATE_WRITE_AHS:
 	case IOSTATE_WRITE_DATA:
 	      write_again:
+	      	fprintf(stderr, "in  event_conn iostate write  %d\n", conn->iostate);
 		conn->cork_transmit(pollfd->fd);
 		res = write(pollfd->fd, conn->buffer, conn->rwsize);
 		if (res < 0) {
@@ -591,6 +595,7 @@ again:
 
 		switch (conn->iostate) {
 		case IOSTATE_WRITE_BHS:
+	      	fprintf(stderr, "in sub  event_conn iostate write  %d\n", conn->iostate);
 			if (conn->rsp.ahssize) {
 				conn->iostate = IOSTATE_WRITE_AHS;
 				conn->buffer = conn->rsp.ahs;
@@ -599,6 +604,7 @@ again:
 			}
 			/* fall-through */
 		case IOSTATE_WRITE_AHS:
+	      	fprintf(stderr, "in sub ahs event_conn iostate write  %d\n", conn->iostate);
 			if (conn->rsp.datasize) {
 				int o;
 
@@ -615,11 +621,13 @@ again:
 			}
 			/* fall-through */
 		case IOSTATE_WRITE_DATA:
+	      	fprintf(stderr, "in sub data  event_conn iostate write  %d\n", conn->iostate);
 			conn->uncork_transmit(pollfd->fd);
 			cmnd_finish(conn);
 
 			switch (conn->state) {
 			case STATE_KERNEL:
+			printf("pass conn to kerenl\n");
 				conn_pass_to_kern(conn, pollfd->fd);
 				if (conn->passed_to_kern)
 					conn->state = STATE_CLOSE;

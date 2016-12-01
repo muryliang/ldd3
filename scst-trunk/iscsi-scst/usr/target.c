@@ -251,7 +251,7 @@ void target_list_build(struct connection *conn, char *target_name)
 	socklen_t slen = sizeof(struct sockaddr_storage);
 	char portal[NI_MAXHOST];
 	int family, i;
-
+printf("in target_list build to build\n");
 	if (conn->getsockname(conn->fd, (struct sockaddr *) &ss1, &slen)) {
 		log_error("getsockname failed: %m");
 		return;

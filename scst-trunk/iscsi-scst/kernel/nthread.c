@@ -702,6 +702,8 @@ static int do_recv(struct iscsi_conn *conn)
 	int first_len;
 #endif
 
+	TRACE_ENTRY();
+
 	EXTRACHECKS_BUG_ON(conn->read_cmnd == NULL);
 
 	if (unlikely(conn->closing)) {

@@ -1,1 +1,1 @@
-cmd_/home/sora/src_code/scst-trunk/iscsi-scst/conftest/create_cq/built-in.o :=  rm -f /home/sora/src_code/scst-trunk/iscsi-scst/conftest/create_cq/built-in.o; ar rcsD /home/sora/src_code/scst-trunk/iscsi-scst/conftest/create_cq/built-in.o
+cmd_/root/git/ldd3/scst-trunk/iscsi-scst/conftest/create_cq/built-in.o :=  rm -f /root/git/ldd3/scst-trunk/iscsi-scst/conftest/create_cq/built-in.o; ar rcs /root/git/ldd3/scst-trunk/iscsi-scst/conftest/create_cq/built-in.o

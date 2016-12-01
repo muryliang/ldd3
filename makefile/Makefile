@@ -1,13 +1,21 @@
 objs = a.o b.o 
 deps = a.d b.d
 exes = a b c d
+ver := 21
+kk = $(if $(ver:1=),@,yy)
+$(warning kk is $(kk))
 #VPATH = headers
 vpath %.h headers
 obj = $(wildcard *.o)
 #$(warning $(objs))
+squote := '
+$(warning hahah)
+escsq = $(subst $(squote),'\$(squote)',$1)
+$(warning $(call escsq,ls))
+
 all: a c d  
 .PHONY : all
-
+$(warning $(CURDIR)/Makefile)
 a : $(objs) $(deps)
 	@echo $(two-lines)
 	gcc -o a $(objs)
