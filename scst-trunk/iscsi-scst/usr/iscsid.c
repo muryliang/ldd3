@@ -506,7 +506,7 @@ static void login_start(struct connection *conn)
 	conn->cid = be16_to_cpu(req->cid);
 	conn->sid.id64 = req->sid.id64;
 
-	printf("start login\n");
+	fprintf(stderr,"start login\n");
 	name = text_key_find(conn, "InitiatorName");
 	if (!name) {
 		login_rsp_ini_err(conn, ISCSI_STATUS_MISSING_FIELDS);
@@ -657,14 +657,14 @@ static int login_finish(struct connection *conn)
 
 	switch (conn->session_type) {
 	case SESSION_NORMAL:
-		printf("session normal\n");
+		fprintf(stderr,"session normal\n");
 		if (!conn->sess)
 			res = session_create(conn);
 		if (res == 0)
 			conn->sid = conn->sess->sid;
 		break;
 	case SESSION_DISCOVERY:
-		printf("session dis\n");
+		fprintf(stderr,"session dis\n");
 		/* set a dummy tsih value */
 		conn->sid.id.tsih = 1;
 		break;
@@ -744,12 +744,12 @@ static void cmnd_exec_login(struct connection *conn)
 		login_rsp_ini_err(conn, ISCSI_STATUS_NO_VERSION);
 		return;
 	}
-printf("in exec login, flag is %d, state is %d\n",req->flags & ISCSI_FLG_CSG_MASK, conn->state); 
+fprintf(stderr,"in exec login, flag is %d, state is %d\n",req->flags & ISCSI_FLG_CSG_MASK, conn->state); 
 	switch (req->flags & ISCSI_FLG_CSG_MASK) {
 	case ISCSI_FLG_CSG_SECURITY:
 		log_debug(1, "Login request (security negotiation): %d", conn->state);
 		rsp->flags = ISCSI_FLG_CSG_SECURITY;
-		printf("in security\n");
+		fprintf(stderr,"in security\n");
 		switch (conn->state) {
 		case STATE_FREE:
 			conn->state = STATE_SECURITY;
@@ -757,7 +757,7 @@ printf("in exec login, flag is %d, state is %d\n",req->flags & ISCSI_FLG_CSG_MAS
 			if (rsp->status_class)
 				return;
 			/* else fall through */
-			printf("here fall\n");
+			fprintf(stderr,"here fall\n");
 		case STATE_SECURITY:
 			text_scan_security(conn);
 			if (rsp->status_class)
@@ -786,12 +786,13 @@ printf("in exec login, flag is %d, state is %d\n",req->flags & ISCSI_FLG_CSG_MAS
 	case ISCSI_FLG_CSG_LOGIN:
 		log_debug(1, "Login request (operational negotiation): %d", conn->state);
 		rsp->flags = ISCSI_FLG_CSG_LOGIN;
-		printf("in normal login in\n");
+		fprintf(stderr,"in normal login in\n");
 		switch (conn->state) {
 		case STATE_FREE:
 			conn->state = STATE_LOGIN;
-			printf("normal login start\n");
+			fprintf(stderr,"normal login start\n");
 			login_start(conn);
+		fprintf(stderr,"after login start conn state %d\n", conn->state);
 			if (rsp->status_class)
 				return;
 			if (!accounts_empty(conn->tid, ISCSI_USER_DIR_INCOMING))
@@ -799,13 +800,16 @@ printf("in exec login, flag is %d, state is %d\n",req->flags & ISCSI_FLG_CSG_MAS
 			if (rsp->status_class)
 				return;
 			text_scan_login(conn);
+		fprintf(stderr,"after text_scan_login conn state %d\n", conn->state);
 			if (rsp->status_class)
 				return;
 			stay = text_check_params(conn);
 			break;
 		case STATE_LOGIN:
-		printf("normal text scan login\n");
+		fprintf(stderr,"normal text scan login\n");
+		fprintf(stderr,"conn state %d\n", conn->state);
 			text_scan_login(conn);
+		fprintf(stderr,"after that jconn state %d\n", conn->state);
 			if (rsp->status_class)
 				return;
 			stay = text_check_params(conn);
@@ -820,13 +824,13 @@ printf("in exec login, flag is %d, state is %d\n",req->flags & ISCSI_FLG_CSG_MAS
 
 	if (rsp->status_class)
 		return;
-	printf("no return\n");
+	fprintf(stderr,"no return\n");
 	if (conn->state != STATE_SECURITY_AUTH && req->flags & ISCSI_FLG_TRANSIT) {
 		int nsg = req->flags & ISCSI_FLG_NSG_MASK;
 
 		switch (nsg) {
 		case ISCSI_FLG_NSG_LOGIN:
-		printf("nsg in first, state is %d\n", conn->state);
+		fprintf(stderr,"nsg in first, state is %d\n", conn->state);
 			switch (conn->state) {
 			case STATE_SECURITY:
 			case STATE_SECURITY_DONE:
@@ -837,7 +841,7 @@ printf("in exec login, flag is %d, state is %d\n",req->flags & ISCSI_FLG_CSG_MAS
 			}
 			break;
 		case ISCSI_FLG_NSG_FULL_FEATURE:
-		printf("nsg in second, state is %d,stay is %d\n", conn->state, stay);
+		fprintf(stderr,"nsg in second, state is %d,stay is %d\n", conn->state, stay);
 			switch (conn->state) {
 			case STATE_SECURITY:
 			case STATE_SECURITY_DONE:
@@ -859,9 +863,10 @@ printf("in exec login, flag is %d, state is %d\n",req->flags & ISCSI_FLG_CSG_MAS
 			}
 			if (!stay && !nsg_disagree) {
 				int err;
-			printf("start login finish\n");
+			fprintf(stderr,"start login finish\n");
 				text_check_params(conn);
 				err = login_finish(conn);
+		fprintf(stderr,"after login finish  conn state %d\n", conn->state);
 				if (err != 0) {
 					log_debug(1, "login_finish() failed: %d", err);
 					/* Make initiator retry later */
@@ -885,6 +890,7 @@ printf("in exec login, flag is %d, state is %d\n",req->flags & ISCSI_FLG_CSG_MAS
 			  "Login PDUs are not implemented, yet\n");
 		goto target_err;
 	}
+	fprintf(stderr,"before return state is %d\n", conn->state);
 
 	rsp->sid = conn->sid;
 	rsp->stat_sn = cpu_to_be32(conn->stat_sn++);
@@ -921,7 +927,7 @@ static int text_scan_text(struct connection *conn)
 	char *key, *value, *data;
 	int datasize;
 
-	printf("in scan\n");
+	fprintf(stderr,"in scan\n");
 	data = conn->req.data;
 	datasize = conn->req.datasize;
 
@@ -939,9 +945,10 @@ static int text_scan_text(struct connection *conn)
 					goto out;
 				}
 			}
-
+		fprintf(stderr,"before list build ,state is %d\n", conn->state);
 			target_list_build(conn,
 					  strcmp(value, "All") ? value : NULL);
+		fprintf(stderr,"after list build ,state is %d\n", conn->state);
 		} else
 			text_key_add(conn, key, "NotUnderstood");
 	}
@@ -969,6 +976,7 @@ static void cmnd_exec_text(struct connection *conn)
 	if (req->ttt == ISCSI_RESERVED_TAG) {
 		conn_free_rsp_buf_list(conn);
 		rc = text_scan_text(conn);
+		fprintf(stderr,"after text_scan_text, state is %d\n", conn->state);
 		if (rc != 0)
 			goto out;
 		if (!list_empty(&conn->rsp_buf_list) &&
@@ -1027,25 +1035,26 @@ int cmnd_execute(struct connection *conn)
 
 	switch (conn->req.bhs.opcode & ISCSI_OPCODE_MASK) {
 	case ISCSI_OP_LOGIN_CMD:
-		printf(" in login cmd state is %d\n", conn->state);
+		fprintf(stderr," in login cmd state is %d\n", conn->state);
 		if (conn->state == STATE_FULL) {
 			cmnd_reject(conn, ISCSI_REASON_PROTOCOL_ERROR);
 			break;
 		}
 		cmnd_exec_login(conn);
+		fprintf(stderr,"after exec login conn state %d\n", conn->state);
 		login_rsp = (struct iscsi_login_rsp_hdr *) &conn->rsp.bhs;
 		if (login_rsp->status_class && login_rsp->status_class != ISCSI_STATUS_REDIRECT)
 			conn_free_rsp_buf_list(conn);
 		break;
 	case ISCSI_OP_TEXT_CMD:
-		printf(" in text cmd state is %d\n", conn->state);
+		fprintf(stderr," in text cmd state is %d\n", conn->state);
 		if (conn->state != STATE_FULL)
 			cmnd_reject(conn, ISCSI_REASON_PROTOCOL_ERROR);
 		else
 			cmnd_exec_text(conn);
 		break;
 	case ISCSI_OP_LOGOUT_CMD:
-		printf(" in logout cmd state is %d\n", conn->state);
+		fprintf(stderr," in logout cmd state is %d\n", conn->state);
 		if (conn->state != STATE_FULL)
 			cmnd_reject(conn, ISCSI_REASON_PROTOCOL_ERROR);
 		else
@@ -1056,6 +1065,7 @@ int cmnd_execute(struct connection *conn)
 		res = 0;
 		goto out;
 	}
+		fprintf(stderr,"after wtich in command exec conn state %d\n", conn->state);
 
 	if (!list_empty(&conn->rsp_buf_list)) {
 		seg = list_entry(conn->rsp_buf_list.q_forw,
@@ -1068,6 +1078,7 @@ int cmnd_execute(struct connection *conn)
 		conn->rsp.data = NULL;
 	}
 
+		fprintf(stderr,"before return conn state %d\n", conn->state);
 	conn->rsp.bhs.ahslength = conn->rsp.ahssize / 4;
 	conn->rsp.bhs.datalength[0] = conn->rsp.datasize >> 16;
 	conn->rsp.bhs.datalength[1] = conn->rsp.datasize >> 8;
@@ -1088,7 +1099,7 @@ void cmnd_finish(struct connection *conn)
 		free(seg);
 		conn->rsp.data = NULL;
 	}
-printf("in command finish state is %d\n", conn->state);
+fprintf(stderr,"in command finish state is %d\n", conn->state);
 	switch (conn->state) {
 	case STATE_EXIT:
 	case STATE_DROP:

@@ -192,6 +192,7 @@ static struct connection *alloc_and_init_conn(int fd)
 
 	conn->fd = fd;
 	incoming[i] = conn;
+	fprintf(stderr, "set incommingg %d\n", i);
 
 	pollfd = &poll_array[POLL_INCOMING + i];
 	pollfd->fd = fd;
@@ -508,7 +509,8 @@ again:
 	case IOSTATE_READ_BHS:
 	case IOSTATE_READ_AHS_DATA:
 	      read_again:
-	      	printf("in event_conn iostate read %d\n", conn->iostate);
+	      	fprintf(stderr,"in event_conn iostate read %d\n", conn->iostate);
+		fprintf(stderr,"conn state %d\n", conn->state);
 		res = read(pollfd->fd, conn->buffer, conn->rwsize);
 		if (res <= 0) {
 			if (res == 0 || (errno != EINTR && errno != EAGAIN)) {
@@ -520,12 +522,15 @@ again:
 		}
 		conn->rwsize -= res;
 		conn->buffer += res;
+		fprintf(stderr,"conn->rwsize %d\n", conn->rwsize);
+		fprintf(stderr,"conn state %d\n", conn->state);
 		if (conn->rwsize)
 			break;
 
 		switch (conn->iostate) {
 		case IOSTATE_READ_BHS:
-	      	printf("in sub event_conn iostate read %d\n", conn->iostate);
+	      	fprintf(stderr,"in sub event_conn iostate read %d\n", conn->iostate);
+		fprintf(stderr,"conn state %d\n", conn->state);
 			conn->iostate = IOSTATE_READ_AHS_DATA;
 			conn->req.ahssize = conn->req.bhs.ahslength * 4;
 			conn->req.datasize = ((conn->req.bhs.datalength[0] << 16) +
@@ -539,6 +544,8 @@ again:
 				conn->state = STATE_DROP;
 				goto out;
 			}
+		fprintf(stderr,"in IOSTTE_READ_BHS conn->rwsize %d\n", conn->rwsize);
+		fprintf(stderr,"conn state %d\n", conn->state);
 			if (conn->rwsize) {
 				if (!conn->req_buffer) {
 					conn->req_buffer = malloc(INCOMING_BUFSIZE);
@@ -556,13 +563,16 @@ again:
 			/* fall-through */
 
 		case IOSTATE_READ_AHS_DATA:
-	      	printf("in sub data event_conn iostate read %d\n", conn->iostate);
+	      	fprintf(stderr,"in sub data event_conn iostate read %d\n", conn->iostate);
 			conn_write_pdu(conn);
 			pollfd->events = POLLOUT;
-
+		fprintf(stderr,"before cmnd_execute, state is %d\n", conn->state);
+		fprintf(stderr,"conn state %d\n", conn->state);
 			log_pdu(2, &conn->req);
 			if (!cmnd_execute(conn))
 				conn->state = STATE_EXIT;
+		fprintf(stderr,"after cmnd_execute, state is %d\n", conn->state);
+		fprintf(stderr,"conn state %d\n", conn->state);
 
 			if (conn->state == STATE_EXIT) {
 				/* We need to send response */
@@ -577,8 +587,11 @@ again:
 	case IOSTATE_WRITE_DATA:
 	      write_again:
 	      	fprintf(stderr, "in  event_conn iostate write  %d\n", conn->iostate);
+		fprintf(stderr,"conn state %d\n", conn->state);
 		conn->cork_transmit(pollfd->fd);
 		res = write(pollfd->fd, conn->buffer, conn->rwsize);
+		fprintf(stderr,"res is %d\n",res);
+		fprintf(stderr,"conn state %d\n", conn->state);
 		if (res < 0) {
 			if (errno != EINTR && errno != EAGAIN) {
 				conn->state = STATE_DROP;
@@ -590,12 +603,16 @@ again:
 
 		conn->rwsize -= res;
 		conn->buffer += res;
+		fprintf(stderr,"in write, rwsize is %d\n", conn->rwsize);
+		fprintf(stderr,"conn state %d\n", conn->state);
 		if (conn->rwsize)
 			goto write_again;
 
 		switch (conn->iostate) {
 		case IOSTATE_WRITE_BHS:
-	      	fprintf(stderr, "in sub  event_conn iostate write  %d\n", conn->iostate);
+	      	fprintf(stderr, "in sub  event_conn iostate write  %d, ahsize %d\n", conn->iostate,
+										conn->rsp.ahssize);
+		fprintf(stderr,"conn state %d\n", conn->state);
 			if (conn->rsp.ahssize) {
 				conn->iostate = IOSTATE_WRITE_AHS;
 				conn->buffer = conn->rsp.ahs;
@@ -605,6 +622,7 @@ again:
 			/* fall-through */
 		case IOSTATE_WRITE_AHS:
 	      	fprintf(stderr, "in sub ahs event_conn iostate write  %d\n", conn->iostate);
+		fprintf(stderr,"conn state %d\n", conn->state);
 			if (conn->rsp.datasize) {
 				int o;
 
@@ -617,17 +635,20 @@ again:
 						*((u8 *) conn->buffer + conn->rwsize++) =
 						    0;
 				}
+				fprintf(stderr,"about to write again??\n");
 				goto write_again;
 			}
 			/* fall-through */
 		case IOSTATE_WRITE_DATA:
 	      	fprintf(stderr, "in sub data  event_conn iostate write  %d\n", conn->iostate);
+		fprintf(stderr,"conn state %d\n", conn->state);
 			conn->uncork_transmit(pollfd->fd);
 			cmnd_finish(conn);
 
+		fprintf(stderr,"berore state kernel switch conn state %d\n", conn->state);
 			switch (conn->state) {
 			case STATE_KERNEL:
-			printf("pass conn to kerenl\n");
+			fprintf(stderr,"pass conn to kerenl\n");
 				conn_pass_to_kern(conn, pollfd->fd);
 				if (conn->passed_to_kern)
 					conn->state = STATE_CLOSE;
@@ -683,6 +704,7 @@ static void event_loop(void)
 	close(init_report_pipe[1]);
 
 	while (1) {
+	fprintf(stderr, "in loop\n");
 		if (!iscsi_enabled) {
 			handle_iscsi_events(nl_fd, true);
 			continue;
@@ -713,13 +735,14 @@ static void event_loop(void)
 					strerror(errno));
 			exit(1);
 		}
-
+		fprintf(stderr, "before accept loop\n");
 		for (i = 0; i < LISTEN_MAX; i++) {
 			if (poll_array[POLL_LISTEN + i].revents
 			    && incoming_cnt < INCOMING_MAX)
 				accept_connection(poll_array[POLL_LISTEN + i].fd);
 		}
 
+		fprintf(stderr, "after accept loop\n");
 		if (poll_array[POLL_NL].revents)
 			handle_iscsi_events(nl_fd, false);
 
@@ -738,16 +761,21 @@ static void event_loop(void)
 		if (poll_array[POLL_ISER_LISTEN].revents)
 			iser_accept(poll_array[POLL_ISER_LISTEN].fd);
 
+		fprintf(stderr, "before incomming loop\n");
 		for (i = 0; i < INCOMING_MAX; i++) {
 			struct connection *conn = incoming[i];
 			struct pollfd *pollfd = &poll_array[POLL_INCOMING + i];
+			fprintf(stderr,"process %d, conn %p, pollfd->revents %d\n", i, conn, pollfd->revents);
 
 			if (!conn || !pollfd->revents)
 				continue;
+			fprintf(stderr,"2process %d\n", i);
 
 			pollfd->revents = 0;
-
+			fprintf(stderr,"begin event_conn conn->state %d\n", conn->state);
 			event_conn(conn, pollfd);
+			fprintf(stderr,"after event_conn, conn->state %d, passed_kernel %d\n", conn->state,
+										conn->passed_to_kern);
 
 			if ((conn->state == STATE_CLOSE) ||
 			    (conn->state == STATE_EXIT) ||
